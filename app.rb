@@ -26,9 +26,9 @@ post '/register' do
 
   passport = PDF::Reader.new(StringIO.new(result.body())).pages[0].text
 
-  cert_data = { firstname: /First Name: ([^\n]*)\n/.match(passport).captures[0],
-                lastname: /Last Name: ([^\n]*)\n/.match(passport).captures[0],
-                birthdate: /Birthdate:  ([^\n]*)\n/.match(passport).captures[0] }
+  cert_data = { f: /First Name: ([^\n]*)\n/.match(passport).captures[0],
+                l: /Last Name: ([^\n]*)\n/.match(passport).captures[0],
+                b: /Birthdate:  ([^\n]*)\n/.match(passport).captures[0] }
 
   certificate = JWT.encode cert_data, key, 'ES256'
   redirect to("/certificate/#{certificate}"), 303
@@ -37,12 +37,12 @@ end
 get '/certificate/:cert' do
   cert_data = JWT.decode(params[:cert], key, true, { algorithm: 'ES256' })[0]
 
-  qrcode = RQRCode::QRCode.new("#{request.scheme}://#{request.host}/certificate/#{params[:cert]}")
+  qrcode = RQRCode::QRCode.new("#{request.scheme}://#{request.host}:#{request.port}/certificate/#{params[:cert]}")
   qrimg = qrcode.as_svg
 
   erb :certificate, locals: { certificate: params[:cert],
-                              firstname: cert_data['firstname'],
-                              lastname: cert_data['lastname'],
-                              birthdate: cert_data['birthdate'],
+                              firstname: cert_data['f'],
+                              lastname: cert_data['l'],
+                              birthdate: cert_data['b'],
                               code: qrimg }
 end
