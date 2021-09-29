@@ -6,8 +6,9 @@ require 'json'
 require 'pdf-reader'
 require 'stringio'
 require 'openssl'
+require 'rqrcode'
 
-key = OpenSSL::PKey::RSA.new File.read 'private.pem'
+key = OpenSSL::PKey::EC.new File.read 'private.pem'
 
 get '/' do
   erb :index
@@ -29,15 +30,19 @@ post '/register' do
                 lastname: /Last Name: ([^\n]*)\n/.match(passport).captures[0],
                 birthdate: /Birthdate:  ([^\n]*)\n/.match(passport).captures[0] }
 
-  certificate = JWT.encode cert_data, key, 'RS256'
+  certificate = JWT.encode cert_data, key, 'ES256'
   redirect to("/certificate/#{certificate}"), 303
 end
 
 get '/certificate/:cert' do
-  cert_data = JWT.decode(params[:cert], key, true, { algorithm: 'RS256' })[0]
-  p cert_data
+  cert_data = JWT.decode(params[:cert], key, true, { algorithm: 'ES256' })[0]
+
+  qrcode = RQRCode::QRCode.new("#{request.scheme}://#{request.host}/certificate/#{params[:cert]}")
+  qrimg = qrcode.as_svg
+
   erb :certificate, locals: { certificate: params[:cert],
                               firstname: cert_data['firstname'],
                               lastname: cert_data['lastname'],
-                              birthdate: cert_data['birthdate'] }
+                              birthdate: cert_data['birthdate'],
+                              code: qrimg }
 end

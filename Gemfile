@@ -11,3 +11,5 @@ gem "sinatra", "~> 2.1"
 gem "jwt", "~> 2.2"
 
 gem "pdf-reader", "~> 2.5"
+
+gem "rqrcode", "~> 2.1"
