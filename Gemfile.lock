@@ -1,12 +1,22 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (1.1.0)
+    afm (0.2.2)
+    hashery (2.1.2)
     jwt (2.2.3)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
+    pdf-reader (2.5.0)
+      Ascii85 (~> 1.0)
+      afm (~> 0.2.1)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
     rack (2.2.3)
     rack-protection (2.1.0)
       rack
+    ruby-rc4 (0.1.5)
     ruby2_keywords (0.0.5)
     sinatra (2.1.0)
       mustermann (~> 1.0)
@@ -14,12 +24,14 @@ GEM
       rack-protection (= 2.1.0)
       tilt (~> 2.0)
     tilt (2.0.10)
+    ttfunk (1.7.0)
 
 PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
   jwt (~> 2.2)
+  pdf-reader (~> 2.5)
   sinatra (~> 2.1)
 
 BUNDLED WITH
