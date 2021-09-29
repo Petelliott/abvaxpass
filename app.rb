@@ -5,6 +5,9 @@ require 'uri'
 require 'json'
 require 'pdf-reader'
 require 'stringio'
+require 'openssl'
+
+key = OpenSSL::PKey::RSA.new File.read 'private.pem'
 
 get '/' do
   erb :index
@@ -26,12 +29,12 @@ post '/register' do
                 lastname: /Last Name: ([^\n]*)\n/.match(passport).captures[0],
                 birthdate: /Birthdate:  ([^\n]*)\n/.match(passport).captures[0] }
 
-  certificate = JWT.encode cert_data, nil, 'none'
+  certificate = JWT.encode cert_data, key, 'RS256'
   redirect to("/certificate/#{certificate}"), 303
 end
 
 get '/certificate/:cert' do
-  cert_data = JWT.decode(params[:cert], nil, false)[0]
+  cert_data = JWT.decode(params[:cert], key, true, { algorithm: 'RS256' })[0]
   p cert_data
   erb :certificate, locals: { certificate: params[:cert],
                               firstname: cert_data['firstname'],
